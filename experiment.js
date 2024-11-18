@@ -1,3 +1,6 @@
+// Debugging: Verify that the correct experiment.js is loaded
+console.log("This is the NEW experiment.js file loaded at:", new Date());
+
 // Initialize jsPsych
 const jsPsych = initJsPsych({
     on_finish: function() {
@@ -15,6 +18,9 @@ const simpleTrial = {
     choices: "ALL_KEYS"
 };
 timeline.push(simpleTrial);
+
+// Debugging: Log the timeline before running
+console.log("Timeline before run:", timeline);
 
 // Run the experiment
 jsPsych.run(timeline);
