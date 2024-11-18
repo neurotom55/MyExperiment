@@ -1,14 +1,20 @@
 console.log("Loaded minimal experiment.js at:", new Date());
 
-// Initialize jsPsych
 const jsPsych = initJsPsych({
     on_finish: function() {
         console.log("Experiment finished successfully!");
     }
 });
 
-// Define an empty timeline (to see if the issue persists without trials)
-const timeline = [];
+// Define a single, basic trial
+const singleTrial = {
+    type: "html-keyboard-response",
+    stimulus: "<p>Press any key to confirm this trial works.</p>",
+    choices: "ALL_KEYS" // Allow all key presses
+};
+
+// Add the trial to the timeline
+const timeline = [singleTrial];
 
 // Debugging: Log the timeline
 console.log("Timeline before run:", timeline);
