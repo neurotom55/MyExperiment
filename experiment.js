@@ -57,3 +57,44 @@ var stimulus_phase = {
                 trial_duration: stimulus_duration
             };
         });
+    }
+};
+timeline.push(stimulus_phase);
+
+// Add user response screen for the second target
+var response_screen = {
+    type: "survey-html-form",
+    preamble: "<p>What was the second number you saw?</p>",
+    html: '<input name="response" type="text" autocomplete="off"/>',
+    button_label: "Submit",
+    on_finish: function(data) {
+        var response = data.response.response; // Get the response value
+        data.correct = (response === second_target); // Check if response is correct
+        if (data.correct) {
+            target_gap = Math.max(min_gap, target_gap - 1); // Make task harder if correct
+        } else {
+            target_gap = Math.min(max_gap, target_gap + 1); // Make task easier if incorrect
+        }
+    }
+};
+timeline.push(response_screen);
+
+// Feedback screen
+var feedback = {
+    type: "html-keyboard-response",
+    stimulus: function() {
+        var correct = jsPsych.data.getLastTrialData().values()[0].correct;
+        return correct ? "<p style='color:green'>Correct!</p>" : "<p style='color:red'>Incorrect.</p>";
+    },
+    choices: jsPsych.NO_KEYS,
+    trial_duration: 2000
+};
+timeline.push(feedback);
+
+// Run the experiment
+jsPsych.init({
+    timeline: timeline,
+    on_finish: function() {
+        jsPsych.data.displayData(); // Display collected data
+    }
+});
