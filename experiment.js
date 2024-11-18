@@ -17,8 +17,8 @@ var instructions = {
 timeline.push(instructions);
 
 // Trial parameters
-var stimulus_duration = 150;
-var interstimulus_interval = 100;
+var stimulus_duration = 100;
+var interstimulus_interval = 80;
 var target_gap = 3; // Initial gap between first and second target
 var min_gap = 2;
 var max_gap = 5;
