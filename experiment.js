@@ -84,17 +84,4 @@ var feedback = {
     type: "html-keyboard-response",
     stimulus: function() {
         var correct = jsPsych.data.getLastTrialData().values()[0].correct;
-        return correct ? "<p style='color:green'>Correct!</p>" : "<p style='color:red'>Incorrect.</p>";
-    },
-    choices: "NO_KEYS", // Updated for jsPsych v7
-    trial_duration: 2000
-};
-timeline.push(feedback);
-
-// Run the experiment
-jsPsych.init({
-    timeline: timeline,
-    on_finish: function() {
-        jsPsych.data.displayData(); // Display collected data
-    }
-});
+        return correct ? "<p style='color:green'>Correct!</p>" :
