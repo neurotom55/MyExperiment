@@ -17,8 +17,8 @@ var instructions = {
 timeline.push(instructions);
 
 // Trial parameters
-var stimulus_duration = 100;
-var interstimulus_interval = 80;
+var stimulus_duration = 150;
+var interstimulus_interval = 100;
 var target_gap = 3; // Initial gap between first and second target
 var min_gap = 2;
 var max_gap = 5;
@@ -44,13 +44,12 @@ function createTrial() {
     return stimuli;
 }
 
-// Define a single trial procedure
-var trial = {
-    timeline: [], // Empty sub-timeline for individual stimuli
+// Add stimulus display phase to the timeline
+var stimulus_phase = {
+    timeline: [], // This will be populated dynamically
     on_timeline_start: function() {
-        // Populate the timeline for this trial with stimuli
-        var stimuli = createTrial();
-        trial.timeline = stimuli.map(function(item) {
+        var stimuli = createTrial(); // Create the trial stimuli
+        this.timeline = stimuli.map(function(item) {
             return {
                 type: 'html-keyboard-response',
                 stimulus: `<p style="font-size:48px; color:${item.color}">${item.stimulus}</p>`,
@@ -58,42 +57,3 @@ var trial = {
                 trial_duration: stimulus_duration
             };
         });
-    }
-};
-timeline.push(trial);
-
-// Add user response screen for the second target
-var response_screen = {
-    type: "survey-html-form",
-    preamble: "<p>What was the second number you saw?</p>",
-    html: '<input name="response" type="text" autocomplete="off"/>',
-    button_label: "Submit",
-    on_finish: function(data) {
-        var response = data.response.response; // Get the response value
-        data.correct = (response === second_target); // Check if response is correct
-        if (data.correct) {
-            target_gap = Math.max(min_gap, target_gap - 1); // Make task harder if correct
-        } else {
-            target_gap = Math.min(max_gap, target_gap + 1); // Make task easier if incorrect
-        }
-    }
-};
-timeline.push(response_screen);
-
-// Feedback screen
-var feedback = {
-    type: "html-keyboard-response",
-    stimulus: function() {
-        var correct = jsPsych.data.get().last(1).values()[0].correct;
-        return correct ? "<p style='color:green'>Correct!</p>" : "<p style='color:red'>Incorrect.</p>";
-    },
-    choices: jsPsych.NO_KEYS,
-    trial_duration: 2000
-};
-timeline.push(feedback);
-
-// Run the experiment
-jsPsych.init({
-    timeline: timeline,
-    on_finish: function() {
-        jsPsych.data.displayData(); //
