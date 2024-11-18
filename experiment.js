@@ -1,25 +1,24 @@
-// Debugging: Verify that the correct experiment.js is loaded
-console.log("This is the NEW experiment.js file loaded at:", new Date());
+// Debugging: Verify file loading
+console.log("Loaded minimal experiment.js at:", new Date());
 
 // Initialize jsPsych
 const jsPsych = initJsPsych({
     on_finish: function() {
-        jsPsych.data.displayData(); // Display collected data at the end
+        console.log("Experiment finished successfully!");
     }
 });
 
-// Define a simple timeline
-const timeline = [];
-
-// Single basic trial
-const simpleTrial = {
+// Define a single trial
+const testTrial = {
     type: "html-keyboard-response",
-    stimulus: "<p>This is a simple trial. Press any key to continue.</p>",
+    stimulus: "<p>Press any key to confirm this trial works.</p>",
     choices: "ALL_KEYS"
 };
-timeline.push(simpleTrial);
 
-// Debugging: Log the timeline before running
+// Define timeline
+const timeline = [testTrial];
+
+// Debugging: Log the timeline
 console.log("Timeline before run:", timeline);
 
 // Run the experiment
