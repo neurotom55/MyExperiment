@@ -53,7 +53,7 @@ var stimulus_phase = {
             return {
                 type: 'html-keyboard-response',
                 stimulus: `<p style="font-size:48px; color:${item.color}">${item.stimulus}</p>`,
-                choices: jsPsych.NO_KEYS,
+                choices: "NO_KEYS", // Updated for jsPsych v7
                 trial_duration: stimulus_duration
             };
         });
@@ -86,7 +86,7 @@ var feedback = {
         var correct = jsPsych.data.getLastTrialData().values()[0].correct;
         return correct ? "<p style='color:green'>Correct!</p>" : "<p style='color:red'>Incorrect.</p>";
     },
-    choices: jsPsych.NO_KEYS,
+    choices: "NO_KEYS", // Updated for jsPsych v7
     trial_duration: 2000
 };
 timeline.push(feedback);
