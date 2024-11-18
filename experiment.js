@@ -1,5 +1,12 @@
 // experiment.js
 
+// Initialize jsPsych
+const jsPsych = initJsPsych({
+    on_finish: function() {
+        jsPsych.data.displayData(); // Display collected data
+    }
+});
+
 // Define timeline array to store experiment steps
 var timeline = [];
 
@@ -84,4 +91,12 @@ var feedback = {
     type: "html-keyboard-response",
     stimulus: function() {
         var correct = jsPsych.data.getLastTrialData().values()[0].correct;
-        return correct ? "<p style='color:green'>Correct!</p>" :
+        return correct ? "<p style='color:green'>Correct!</p>" : "<p style='color:red'>Incorrect.</p>";
+    },
+    choices: "NO_KEYS", // Updated for jsPsych v7
+    trial_duration: 2000
+};
+timeline.push(feedback);
+
+// Start the experiment
+jsPsych.run(timeline);
