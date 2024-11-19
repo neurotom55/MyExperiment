@@ -1,6 +1,6 @@
 console.log("Loaded minimal experiment.js at:", new Date());
 
-// Initialize jsPsych (introduced in v7.0.0)
+// Initialize jsPsych
 const jsPsych = initJsPsych({
     on_finish: function() {
         console.log("Experiment finished successfully!");
@@ -8,17 +8,22 @@ const jsPsych = initJsPsych({
 });
 
 // Define a single trial
-const singleTrial = {
+const trial = {
     type: "html-keyboard-response",
-    stimulus: "<p>Press any key to continue.</p>",
+    stimulus: "<p>Press any key to test jsPsych.</p>",
     choices: "ALL_KEYS" // Allow all key presses
 };
 
 // Define the timeline
-const timeline = [singleTrial];
+const timeline = [trial];
 
 // Debugging: Log the timeline
 console.log("Timeline before run:", timeline);
 
 // Run the experiment
-jsPsych.run(timeline);
+try {
+    jsPsych.run(timeline);
+    console.log("Experiment ran successfully!");
+} catch (error) {
+    console.error("Error running experiment:", error);
+}
