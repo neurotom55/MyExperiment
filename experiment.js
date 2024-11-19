@@ -1,46 +1,86 @@
-console.log("Loaded custom experiment.js at:", new Date());
+console.log("Loaded attentional blink experiment.js at:", new Date());
 
-// Function to initialize the experiment
-function runExperiment() {
-    console.log("Experiment started!");
+// Initialize jsPsych
+const jsPsych = initJsPsych({
+    on_finish: function () {
+        console.log("Experiment finished successfully!");
+        jsPsych.data.displayData();
+    }
+});
 
-    // Get the jsPsych target div
-    const targetDiv = document.getElementById("jspsych-target");
+// Variables
+let firstTarget = null;
+let secondTarget = null;
+let targetGap = 3; // Initial gap between targets
+const minGap = 2;
+const maxGap = 5;
 
-    // Clear the div
-    targetDiv.innerHTML = "";
+// Function to create stimuli
+function createStimuli() {
+    const stimuli = [];
+    firstTarget = Math.floor(Math.random() * 10).toString(); // First target: random digit
+    secondTarget = Math.floor(Math.random() * 10).toString(); // Second target: random digit
 
-    // Create a stimulus
-    const stimulus = document.createElement("p");
-    stimulus.innerText = "Press any key to continue.";
-    stimulus.style.fontSize = "24px";
-    stimulus.style.textAlign = "center";
-    targetDiv.appendChild(stimulus);
-
-    // Add a keypress event listener
-    document.addEventListener("keydown", (event) => {
-        console.log(`Key pressed: ${event.key}`);
-        endExperiment(targetDiv, event.key);
-    }, { once: true }); // `once: true` ensures the listener runs only once
+    for (let i = 0; i < 20; i++) {
+        if (i === 5) {
+            stimuli.push({ stimulus: firstTarget, color: "red" });
+        } else if (i === 5 + targetGap) {
+            stimuli.push({ stimulus: secondTarget, color: "white" });
+        } else {
+            const letter = String.fromCharCode(65 + Math.floor(Math.random() * 26)); // Random letter
+            stimuli.push({ stimulus: letter, color: "white" });
+        }
+    }
+    return stimuli;
 }
 
-// Function to end the experiment
-function endExperiment(targetDiv, keyPressed) {
-    console.log("Experiment ended. Key pressed:", keyPressed);
+// Trial to present stimuli
+const rapidPresentationTrial = {
+    timeline: [],
+    on_timeline_start: function () {
+        const stimuli = createStimuli();
+        this.timeline = stimuli.map((item) => ({
+            type: "html-keyboard-response",
+            stimulus: `<p style="font-size:48px; color:${item.color}">${item.stimulus}</p>`,
+            choices: "NO_KEYS",
+            trial_duration: 150
+        }));
+    }
+};
 
-    // Clear the div
-    targetDiv.innerHTML = "";
+// Response trial
+const responseTrial = {
+    type: "survey-html-form",
+    preamble: "<p>What was the second number you saw?</p>",
+    html: '<input name="response" type="text" autocomplete="off" />',
+    button_label: "Submit",
+    on_finish: function (data) {
+        const response = data.response.response;
+        const isCorrect = response === secondTarget;
+        console.log("Response:", response, "Correct:", isCorrect);
 
-    // Show a message
-    const result = document.createElement("p");
-    result.innerText = `You pressed: ${keyPressed}`;
-    result.style.fontSize = "24px";
-    result.style.textAlign = "center";
-    targetDiv.appendChild(result);
+        if (isCorrect) {
+            targetGap = Math.max(minGap, targetGap - 1); // Decrease gap if correct
+        } else {
+            targetGap = Math.min(maxGap, targetGap + 1); // Increase gap if incorrect
+        }
+    }
+};
 
-    // Log experiment completion
-    console.log("Experiment finished successfully!");
-}
+// Feedback trial
+const feedbackTrial = {
+    type: "html-keyboard-response",
+    stimulus: function () {
+        const lastTrial = jsPsych.data.get().last(1).values()[0];
+        return lastTrial.response.response === secondTarget
+            ? "<p style='color:green'>Correct!</p>"
+            : "<p style='color:red'>Incorrect.</p>";
+    },
+    choices: "NO_KEYS",
+    trial_duration: 2000
+};
 
-// Start the experiment
-runExperiment();
+// Timeline
+const timeline = [
+    {
+        type: "html-keyboard-response",
