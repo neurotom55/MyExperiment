@@ -4,12 +4,10 @@ const jsPsych = initJsPsych({
   }
 });
 
-// Variables
 let targetGap = 3; // Initial gap between targets
 const minGap = 2;
 const maxGap = 5;
 
-// Function to create stimuli
 function createStimuli() {
   const stimuli = [];
   const firstTarget = Math.floor(Math.random() * 10).toString(); // First target: random digit
@@ -28,70 +26,49 @@ function createStimuli() {
   return { stimuli, firstTarget, secondTarget };
 }
 
-// Generate rapid presentation timeline
 function createRapidPresentationTimeline() {
   const { stimuli, firstTarget, secondTarget } = createStimuli();
   jsPsych.data.addProperties({ firstTarget, secondTarget });
 
   return stimuli.map((item) => ({
-    type: "html-keyboard-response",
+    type: 'html-keyboard-response',
     stimulus: `<p style="font-size:48px; color:${item.color}">${item.stimulus}</p>`,
-    choices: "NO_KEYS",
+    choices: jsPsych.NO_KEYS,
     trial_duration: 150,
   }));
 }
 
-// Rapid presentation trial
 const rapidPresentationTrial = {
   timeline: createRapidPresentationTimeline(),
 };
 
-// Response trial
 const responseTrial = {
-  type: "survey-html-form",
-  preamble: "<p>What was the second number you saw?</p>",
-  html: '<input name="response" type="text" autocomplete="off" />',
-  button_label: "Submit",
-  on_finish: function (data) {
-    const response = data.response?.response || "";
-    const secondTarget = jsPsych.data.get().last(20).values().find((d) => d.stimulus === secondTarget);
+  type: 'html-keyboard-response',
+  stimulus: '<p>What was the second number you saw?</p>',
+  choices: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
+};
+
+const feedbackTrial = {
+  type: 'html-keyboard-response',
+  stimulus: function() {
+    const response = jsPsych.data.get().last(1).values()[0].response;
     const isCorrect = response === secondTarget;
-    console.log("Response:", response, "Correct:", isCorrect);
 
     if (isCorrect) {
       targetGap = Math.max(minGap, targetGap - 1); // Decrease gap if correct
+      return '<p style="color:green">Correct!</p>';
     } else {
       targetGap = Math.min(maxGap, targetGap + 1); // Increase gap if incorrect
+      return '<p style="color:red">Incorrect.</p>';
     }
   },
-};
-
-// Feedback trial
-const feedbackTrial = {
-  type: "html-keyboard-response",
-  stimulus: function () {
-    const response = jsPsych.data.get().last(1).values()[0]?.response?.response;
-    const secondTarget = jsPsych.data.get().last(20).values().find((d) => d.stimulus === secondTarget);
-
-    if (!response) {
-      return "<p style='color:red'>No response recorded.</p>";
-    }
-    return response === secondTarget
-      ? "<p style='color:green'>Correct!</p>"
-      : "<p style='color:red'>Incorrect.</p>";
-  },
-  choices: "NO_KEYS",
+  choices: jsPsych.NO_KEYS,
   trial_duration: 2000,
 };
 
-// Welcome screen
-const welcomeScreen = {
-  type: "html-keyboard-response",
-  stimulus: "<p>Welcome to the attentional blink experiment.</p><p>Press any key to continue.</p>",
-  choices: "ALL_KEYS",
+const trialProcedure = {
+  timeline: [rapidPresentationTrial, responseTrial, feedbackTrial],
+  repetitions: 10, // Adjust the number of repetitions as needed
 };
 
-// Main timeline
-const timeline = [welcomeScreen, rapidPresentationTrial, responseTrial, feedbackTrial];
-
-jsPsych.run(timeline);
+jsPsych.run(trialProcedure);
