@@ -1,24 +1,27 @@
 console.log("Loaded minimal experiment.js at:", new Date());
 
-// Initialize jsPsych
 const jsPsych = initJsPsych({
     on_finish: function() {
         console.log("Experiment finished successfully!");
     }
 });
 
-// Define a single trial with all properties explicitly set
-const singleTrial = {
+// Define a single trial
+const trial = {
     type: "html-keyboard-response",
     stimulus: "<p>Press any key to confirm the experiment works.</p>",
-    choices: "ALL_KEYS", // Allow all key presses
-    response_ends_trial: true, // Ends trial after a response
-    trial_duration: null, // No duration limit
-    post_trial_gap: 0 // No gap between trials
+    choices: "ALL_KEYS"
 };
 
+// Debugging: Ensure the plugin exists
+if (typeof jsPsych.plugins["html-keyboard-response"] === "undefined") {
+    console.error("Plugin 'html-keyboard-response' is not loaded or defined!");
+} else {
+    console.log("Plugin 'html-keyboard-response' loaded successfully:", jsPsych.plugins["html-keyboard-response"]);
+}
+
 // Define the timeline
-const timeline = [singleTrial];
+const timeline = [trial];
 
 // Debugging: Log the timeline
 console.log("Timeline before run:", timeline);
