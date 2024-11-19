@@ -71,4 +71,7 @@ const trialProcedure = {
   repetitions: 10, // Adjust the number of repetitions as needed
 };
 
-jsPsych.run(trialProcedure);
+// Trigger the experiment after a user gesture
+document.addEventListener('click', () => {
+  jsPsych.run(trialProcedure);
+});
