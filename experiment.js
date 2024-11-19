@@ -32,20 +32,22 @@ function createStimuli() {
     return { stimuli, firstTarget, secondTarget };
 }
 
-// Trial to present stimuli
-const rapidPresentationTrial = {
-    timeline: [],
-    on_timeline_start: function () {
-        const { stimuli, firstTarget, secondTarget } = createStimuli();
-        jsPsych.data.addProperties({ firstTarget, secondTarget }); // Store targets globally in data
+// Generate rapid presentation timeline
+function createRapidPresentationTimeline() {
+    const { stimuli, firstTarget, secondTarget } = createStimuli();
+    jsPsych.data.addProperties({ firstTarget, secondTarget });
 
-        this.timeline = stimuli.map((item) => ({
-            type: "html-keyboard-response",
-            stimulus: `<p style="font-size:48px; color:${item.color}">${item.stimulus}</p>`,
-            choices: "NO_KEYS",
-            trial_duration: 150,
-        }));
-    },
+    return stimuli.map((item) => ({
+        type: "html-keyboard-response",
+        stimulus: `<p style="font-size:48px; color:${item.color}">${item.stimulus}</p>`,
+        choices: "NO_KEYS",
+        trial_duration: 150,
+    }));
+}
+
+// Rapid presentation trial
+const rapidPresentationTrial = {
+    timeline: createRapidPresentationTimeline(),
 };
 
 // Response trial
@@ -55,8 +57,8 @@ const responseTrial = {
     html: '<input name="response" type="text" autocomplete="off" />',
     button_label: "Submit",
     on_finish: function (data) {
-        const response = data.response?.response;
-        const secondTarget = jsPsych.data.getLastTrialData().filter({ trial_type: "html-keyboard-response" }).select("secondTarget").values[0];
+        const response = data.response?.response || "";
+        const secondTarget = jsPsych.data.get().last(20).values().find((d) => d.stimulus === secondTarget);
         const isCorrect = response === secondTarget;
         console.log("Response:", response, "Correct:", isCorrect);
 
@@ -72,8 +74,8 @@ const responseTrial = {
 const feedbackTrial = {
     type: "html-keyboard-response",
     stimulus: function () {
-        const response = jsPsych.data.getLastTrialData().filter({ trial_type: "survey-html-form" }).select("response").values[0]?.response;
-        const secondTarget = jsPsych.data.getLastTrialData().filter({ trial_type: "html-keyboard-response" }).select("secondTarget").values[0];
+        const response = jsPsych.data.get().last(1).values()[0]?.response?.response;
+        const secondTarget = jsPsych.data.get().last(20).values().find((d) => d.stimulus === secondTarget);
 
         if (!response) {
             return "<p style='color:red'>No response recorded.</p>";
@@ -96,14 +98,7 @@ const welcomeScreen = {
 // Main timeline
 const timeline = [welcomeScreen, rapidPresentationTrial, responseTrial, feedbackTrial];
 
-// Loop experiment until user meets a criterion or finishes N repetitions
-const loopTimeline = {
-    timeline: timeline,
-    loop_function: function () {
-        // Optional: Stop after X iterations, or implement a more complex stopping criterion
-        return targetGap !== minGap || targetGap !== maxGap; // Run again until gap stabilizes
-    },
-};
-
-// Run experiment
-jsPsych.run(loopTimeline);
+// Start experiment after user gesture
+document.addEventListener("click", () => {
+    jsPsych.run(timeline);
+});
