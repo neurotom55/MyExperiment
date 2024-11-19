@@ -4,12 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minimal jsPsych Test</title>
-    <link rel="stylesheet" href="jsPsych/jspsych.css">
-    <script src="jsPsych/jspsych.js"></script>
-    <script src="jsPsych/plugin-html-keyboard-response.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jspsych@7.3.0/dist/jspsych.css">
+    <script src="https://cdn.jsdelivr.net/npm/jspsych@7.3.0/dist/jspsych.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspsych@7.3.0/dist/plugins/jspsych-html-keyboard-response.js"></script>
 </head>
 <body>
     <div id="jspsych-target"></div>
-    <script src="experiment.js"></script>
+    <script>
+        console.log("Running CDN-based experiment");
+
+        const jsPsych = initJsPsych({
+            on_finish: () => console.log("Experiment finished")
+        });
+
+        const timeline = [{
+            type: "html-keyboard-response",
+            stimulus: "<p>Press any key to continue.</p>"
+        }];
+
+        jsPsych.run(timeline);
+    </script>
 </body>
 </html>
