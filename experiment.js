@@ -43,9 +43,9 @@ const rapidPresentationTrial = {
             type: "html-keyboard-response",
             stimulus: `<p style="font-size:48px; color:${item.color}">${item.stimulus}</p>`,
             choices: "NO_KEYS",
-            trial_duration: 150
+            trial_duration: 150,
         }));
-    }
+    },
 };
 
 // Response trial
@@ -64,7 +64,7 @@ const responseTrial = {
         } else {
             targetGap = Math.min(maxGap, targetGap + 1); // Increase gap if incorrect
         }
-    }
+    },
 };
 
 // Feedback trial
@@ -77,10 +77,20 @@ const feedbackTrial = {
             : "<p style='color:red'>Incorrect.</p>";
     },
     choices: "NO_KEYS",
-    trial_duration: 2000
+    trial_duration: 2000,
 };
 
 // Timeline
 const timeline = [
     {
         type: "html-keyboard-response",
+        stimulus: "<p>Welcome to the attentional blink experiment.</p><p>Press any key to continue.</p>",
+        choices: "ALL_KEYS",
+    },
+    rapidPresentationTrial,
+    responseTrial,
+    feedbackTrial,
+];
+
+// Run experiment
+jsPsych.run(timeline);
